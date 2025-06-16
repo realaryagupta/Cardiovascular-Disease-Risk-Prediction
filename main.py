@@ -161,7 +161,7 @@ def train_models(X_train, X_test, y_train, y_test):
     return models, results
 
 def main():
-    st.markdown('<h1 class="main-header">❤️ Framingham Heart Disease Dashboard</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header"> Framingham Heart Disease Dashboard</h1>', unsafe_allow_html=True)
     
     # Sidebar
     st.sidebar.title("Navigation")
@@ -184,6 +184,35 @@ def main():
     # Process data
     processed_data = preprocess_data(data, missing_data_option)
     
+    # if page == "Overview":
+    #     st.markdown('<h2 class="sub-header">Dataset Overview</h2>', unsafe_allow_html=True)
+        
+    #     # Dataset statistics
+    #     col1, col2, col3, col4 = st.columns(4)
+        
+    #     with col1:
+    #         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+    #         st.metric("Total Records", len(processed_data))
+    #         st.markdown('</div>', unsafe_allow_html=True)
+        
+    #     with col2:
+    #         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+    #         st.metric("Features", len(processed_data.columns) - 1)
+    #         st.markdown('</div>', unsafe_allow_html=True)
+        
+    #     with col3:
+    #         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+    #         chd_cases = processed_data['TenYearCHD'].sum()
+    #         st.metric("CHD Cases", chd_cases)
+    #         st.markdown('</div>', unsafe_allow_html=True)
+        
+    #     with col4:
+    #         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+    #         chd_rate = (chd_cases / len(processed_data) * 100)
+    #         st.metric("CHD Rate", f"{chd_rate:.1f}%")
+    #         st.markdown('</div>', unsafe_allow_html=True)
+        
+
     if page == "Overview":
         st.markdown('<h2 class="sub-header">Dataset Overview</h2>', unsafe_allow_html=True)
         
@@ -191,31 +220,29 @@ def main():
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-            st.metric("Total Records", len(processed_data))
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('<div class="metric-card"><strong style="color: black;">Total Records</strong></div>', unsafe_allow_html=True)
+            st.write(len(processed_data))
         
         with col2:
-            st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-            st.metric("Features", len(processed_data.columns) - 1)
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('<div class="metric-card"><strong style="color: black;">Features</strong></div>', unsafe_allow_html=True)
+            st.write(len(processed_data.columns) - 1)
         
         with col3:
-            st.markdown('<div class="metric-card">', unsafe_allow_html=True)
             chd_cases = processed_data['TenYearCHD'].sum()
-            st.metric("CHD Cases", chd_cases)
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('<div class="metric-card"><strong style="color: black;">CHD Cases</strong></div>', unsafe_allow_html=True)
+            st.write(chd_cases)
         
         with col4:
-            st.markdown('<div class="metric-card">', unsafe_allow_html=True)
             chd_rate = (chd_cases / len(processed_data) * 100)
-            st.metric("CHD Rate", f"{chd_rate:.1f}%")
-            st.markdown('</div>', unsafe_allow_html=True)
-        
+            st.markdown('<div class="metric-card"><strong style="color: black;">CHD Rate</strong></div>', unsafe_allow_html=True)
+            st.write(f"{chd_rate:.1f}%")
+
+
+
         # Dataset info
         st.subheader("Dataset Information")
-        st.write("**Shape:**", processed_data.shape)
-        st.write("**Columns:**", list(processed_data.columns))
+        st.markdown(f"<b>Shape:</b> {processed_data.shape}", unsafe_allow_html=True)
+        # st.markdown(f"<b>Columns:</b> {list(processed_data.columns)}", unsafe_allow_html=True)
         
         # Missing values info
         if missing_data_option == "drop":
