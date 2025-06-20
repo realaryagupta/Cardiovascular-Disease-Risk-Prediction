@@ -183,35 +183,6 @@ def main():
     
     # Process data
     processed_data = preprocess_data(data, missing_data_option)
-    
-    # if page == "Overview":
-    #     st.markdown('<h2 class="sub-header">Dataset Overview</h2>', unsafe_allow_html=True)
-        
-    #     # Dataset statistics
-    #     col1, col2, col3, col4 = st.columns(4)
-        
-    #     with col1:
-    #         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-    #         st.metric("Total Records", len(processed_data))
-    #         st.markdown('</div>', unsafe_allow_html=True)
-        
-    #     with col2:
-    #         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-    #         st.metric("Features", len(processed_data.columns) - 1)
-    #         st.markdown('</div>', unsafe_allow_html=True)
-        
-    #     with col3:
-    #         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-    #         chd_cases = processed_data['TenYearCHD'].sum()
-    #         st.metric("CHD Cases", chd_cases)
-    #         st.markdown('</div>', unsafe_allow_html=True)
-        
-    #     with col4:
-    #         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-    #         chd_rate = (chd_cases / len(processed_data) * 100)
-    #         st.metric("CHD Rate", f"{chd_rate:.1f}%")
-    #         st.markdown('</div>', unsafe_allow_html=True)
-        
 
     if page == "Overview":
         st.markdown('<h2 class="sub-header">Dataset Overview</h2>', unsafe_allow_html=True)
@@ -237,12 +208,9 @@ def main():
             st.markdown('<div class="metric-card"><strong style="color: black;">CHD Rate</strong></div>', unsafe_allow_html=True)
             st.write(f"{chd_rate:.1f}%")
 
-
-
         # Dataset info
         st.subheader("Dataset Information")
         st.markdown(f"<b>Shape:</b> {processed_data.shape}", unsafe_allow_html=True)
-        # st.markdown(f"<b>Columns:</b> {list(processed_data.columns)}", unsafe_allow_html=True)
         
         # Missing values info
         if missing_data_option == "drop":
@@ -428,91 +396,145 @@ def main():
         
         st.write("Enter patient information to predict CHD risk:")
         
-        # Create input form
+        # First, let's see what columns are available in the dataset
+        st.write("Available features in dataset:", list(processed_data.columns))
+        
+        # Create input form based on actual dataset columns
         with st.form("prediction_form"):
             col1, col2, col3 = st.columns(3)
             
+            # Initialize input dictionary with default values
+            input_dict = {}
+            
             with col1:
-                age = st.number_input("Age", min_value=20, max_value=100, value=50)
-                male = st.selectbox("Gender", options=[0, 1], format_func=lambda x: "Female" if x == 0 else "Male")
-                current_smoker = st.selectbox("Current Smoker", options=[0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+                if 'age' in processed_data.columns:
+                    input_dict['age'] = st.number_input("Age", min_value=20, max_value=100, value=50)
+                
+                if 'male' in processed_data.columns:
+                    input_dict['male'] = st.selectbox("Gender", options=[0, 1], 
+                                                    format_func=lambda x: "Female" if x == 0 else "Male")
+                
+                if 'currentSmoker' in processed_data.columns:
+                    input_dict['currentSmoker'] = st.selectbox("Current Smoker", options=[0, 1], 
+                                                             format_func=lambda x: "No" if x == 0 else "Yes")
+                
+                if 'cigsPerDay' in processed_data.columns:
+                    input_dict['cigsPerDay'] = st.number_input("Cigarettes per Day", min_value=0, max_value=100, value=0)
             
             with col2:
-                sys_bp = st.number_input("Systolic BP", min_value=80, max_value=250, value=120)
-                dia_bp = st.number_input("Diastolic BP", min_value=40, max_value=150, value=80)
-                tot_chol = st.number_input("Total Cholesterol", min_value=100, max_value=500, value=200)
+                if 'BPMeds' in processed_data.columns:
+                    input_dict['BPMeds'] = st.selectbox("BP Medication", options=[0, 1], 
+                                                      format_func=lambda x: "No" if x == 0 else "Yes")
+                
+                if 'prevalentStroke' in processed_data.columns:
+                    input_dict['prevalentStroke'] = st.selectbox("Previous Stroke", options=[0, 1], 
+                                                               format_func=lambda x: "No" if x == 0 else "Yes")
+                
+                if 'prevalentHyp' in processed_data.columns:
+                    input_dict['prevalentHyp'] = st.selectbox("Hypertension", options=[0, 1], 
+                                                            format_func=lambda x: "No" if x == 0 else "Yes")
+                
+                if 'diabetes' in processed_data.columns:
+                    input_dict['diabetes'] = st.selectbox("Diabetes", options=[0, 1], 
+                                                        format_func=lambda x: "No" if x == 0 else "Yes")
             
             with col3:
-                bmi = st.number_input("BMI", min_value=15.0, max_value=50.0, value=25.0)
-                heart_rate = st.number_input("Heart Rate", min_value=40, max_value=150, value=70)
-                glucose = st.number_input("Glucose", min_value=50, max_value=400, value=100)
+                if 'sysBP' in processed_data.columns:
+                    input_dict['sysBP'] = st.number_input("Systolic BP", min_value=80, max_value=250, value=120)
+                
+                if 'diaBP' in processed_data.columns:
+                    input_dict['diaBP'] = st.number_input("Diastolic BP", min_value=40, max_value=150, value=80)
+                
+                if 'totChol' in processed_data.columns:
+                    input_dict['totChol'] = st.number_input("Total Cholesterol", min_value=100, max_value=500, value=200)
+                
+                if 'BMI' in processed_data.columns:
+                    input_dict['BMI'] = st.number_input("BMI", min_value=15.0, max_value=50.0, value=25.0)
+                
+                if 'heartRate' in processed_data.columns:
+                    input_dict['heartRate'] = st.number_input("Heart Rate", min_value=40, max_value=150, value=70)
+                
+                if 'glucose' in processed_data.columns:
+                    input_dict['glucose'] = st.number_input("Glucose", min_value=50, max_value=400, value=100)
             
             submitted = st.form_submit_button("Predict CHD Risk")
             
             if submitted:
-                # Create a simple prediction model
-                X = processed_data.drop('TenYearCHD', axis=1)
-                y = processed_data['TenYearCHD']
-                
-                # Train a simple model for prediction
-                model = LogisticRegression(random_state=42, max_iter=1000)
-                
-                # Scale the features
-                scaler = StandardScaler()
-                X_scaled = scaler.fit_transform(X)
-                model.fit(X_scaled, y)
-                
-                # Prepare input data
-                input_data = np.array([[age, male, current_smoker, 0, 0, sys_bp, dia_bp, 
-                                      tot_chol, bmi, heart_rate, glucose, 0]])
-                
-                # Ensure input has the same number of features as training data
-                if input_data.shape[1] != X.shape[1]:
-                    # Pad with zeros or adjust as needed
-                    diff = X.shape[1] - input_data.shape[1]
-                    if diff > 0:
-                        padding = np.zeros((1, diff))
-                        input_data = np.hstack([input_data, padding])
-                    else:
-                        input_data = input_data[:, :X.shape[1]]
-                
-                input_scaled = scaler.transform(input_data)
-                
-                # Make prediction
-                prediction = model.predict(input_scaled)[0]
-                probability = model.predict_proba(input_scaled)[0][1]
-                
-                # Display results
-                st.subheader("Prediction Results")
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    risk_level = "High Risk" if prediction == 1 else "Low Risk"
-                    color = "red" if prediction == 1 else "green"
-                    st.markdown(f"**CHD Risk:** <span style='color: {color}'>{risk_level}</span>", 
-                              unsafe_allow_html=True)
-                
-                with col2:
-                    st.metric("Risk Probability", f"{probability:.2%}")
-                
-                # Risk gauge
-                fig = go.Figure(go.Indicator(
-                    mode = "gauge+number+delta",
-                    value = probability * 100,
-                    domain = {'x': [0, 1], 'y': [0, 1]},
-                    title = {'text': "CHD Risk Percentage"},
-                    delta = {'reference': 15},
-                    gauge = {'axis': {'range': [None, 100]},
-                            'bar': {'color': "darkblue"},
-                            'steps' : [
-                                {'range': [0, 25], 'color': "lightgray"},
-                                {'range': [25, 50], 'color': "gray"},
-                                {'range': [50, 75], 'color': "orange"},
-                                {'range': [75, 100], 'color': "red"}],
-                            'threshold' : {'line': {'color': "red", 'width': 4},
-                                          'thickness': 0.75, 'value': 90}}))
-                
-                st.plotly_chart(fig, use_container_width=True)
+                try:
+                    # Prepare the data
+                    X = processed_data.drop('TenYearCHD', axis=1)
+                    y = processed_data['TenYearCHD']
+                    
+                    # Train a model for prediction
+                    model = LogisticRegression(random_state=42, max_iter=1000)
+                    scaler = StandardScaler()
+                    
+                    # Scale the features and fit the model
+                    X_scaled = scaler.fit_transform(X)
+                    model.fit(X_scaled, y)
+                    
+                    # Create input dataframe with the same columns as training data
+                    input_df = pd.DataFrame([input_dict])
+                    
+                    # Fill missing columns with default values (median for numeric, mode for categorical)
+                    for col in X.columns:
+                        if col not in input_df.columns:
+                            if X[col].dtype in ['int64', 'float64']:
+                                input_df[col] = X[col].median()
+                            else:
+                                input_df[col] = X[col].mode()[0]
+                    
+                    # Reorder columns to match training data
+                    input_df = input_df[X.columns]
+                    
+                    # Scale the input
+                    input_scaled = scaler.transform(input_df)
+                    
+                    # Make prediction
+                    prediction = model.predict(input_scaled)[0]
+                    probability = model.predict_proba(input_scaled)[0][1]
+                    
+                    # Display results
+                    st.subheader("Prediction Results")
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        risk_level = "High Risk" if prediction == 1 else "Low Risk"
+                        color = "red" if prediction == 1 else "green"
+                        st.markdown(f"**CHD Risk:** <span style='color: {color}'>{risk_level}</span>", 
+                                  unsafe_allow_html=True)
+                    
+                    with col2:
+                        st.metric("Risk Probability", f"{probability:.2%}")
+                    
+                    # Risk gauge
+                    fig = go.Figure(go.Indicator(
+                        mode = "gauge+number+delta",
+                        value = probability * 100,
+                        domain = {'x': [0, 1], 'y': [0, 1]},
+                        title = {'text': "CHD Risk Percentage"},
+                        delta = {'reference': 15},
+                        gauge = {'axis': {'range': [None, 100]},
+                                'bar': {'color': "darkblue"},
+                                'steps' : [
+                                    {'range': [0, 25], 'color': "lightgray"},
+                                    {'range': [25, 50], 'color': "gray"},
+                                    {'range': [50, 75], 'color': "orange"},
+                                    {'range': [75, 100], 'color': "red"}],
+                                'threshold' : {'line': {'color': "red", 'width': 4},
+                                              'thickness': 0.75, 'value': 90}}))
+                    
+                    st.plotly_chart(fig, use_container_width=True)
+                    
+                    # Show input summary
+                    st.subheader("Input Summary")
+                    input_summary = pd.DataFrame([input_dict]).T
+                    input_summary.columns = ['Value']
+                    st.dataframe(input_summary)
+                    
+                except Exception as e:
+                    st.error(f"Error in prediction: {str(e)}")
+                    st.write("Please check your inputs and try again.")
 
 if __name__ == "__main__":
     main()
